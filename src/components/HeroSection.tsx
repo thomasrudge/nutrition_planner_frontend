@@ -1,5 +1,6 @@
 import { Camera, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import heroMeal from "@/assets/hero-meal.jpg";
 
 const HeroSection = () => {
