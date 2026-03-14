@@ -13,12 +13,12 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-          <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a>
+          <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Como Funciona</a>
         </div>
 
         <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-heading font-semibold">
-          Get Started
+          Começar
         </Button>
       </div>
     </nav>
