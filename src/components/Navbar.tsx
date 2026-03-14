@@ -1,5 +1,6 @@
 import { Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -17,8 +18,8 @@ const Navbar = () => {
           <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Como Funciona</a>
         </div>
 
-        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-heading font-semibold">
-          Começar
+        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-heading font-semibold" asChild>
+          <Link to="/auth">Começar</Link>
         </Button>
       </div>
     </nav>

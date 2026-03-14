@@ -1,5 +1,6 @@
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -17,9 +18,11 @@ const CTASection = () => {
             <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-10 leading-relaxed">
               Junte-se a milhares de usuários que estão fazendo escolhas alimentares mais inteligentes com análise de refeições por IA.
             </p>
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-glow)] animate-pulse-glow gap-2 text-base px-10 py-6 rounded-xl font-heading font-semibold">
-              <Camera className="w-5 h-5" />
-              Comece Agora — É Grátis
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-glow)] animate-pulse-glow gap-2 text-base px-10 py-6 rounded-xl font-heading font-semibold" asChild>
+              <Link to="/auth">
+                <Camera className="w-5 h-5" />
+                Comece Agora — É Grátis
+              </Link>
             </Button>
           </div>
         </div>
