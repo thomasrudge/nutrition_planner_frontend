@@ -30,9 +30,11 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-glow)] gap-2 text-base px-8 py-6 rounded-xl font-heading font-semibold">
-              <Camera className="w-5 h-5" />
-              Comece Grátis
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-glow)] gap-2 text-base px-8 py-6 rounded-xl font-heading font-semibold" asChild>
+              <Link to="/auth">
+                <Camera className="w-5 h-5" />
+                Comece Grátis
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-secondary gap-2 text-base px-8 py-6 rounded-xl font-heading font-semibold">
               Veja Como Funciona
