@@ -10,7 +10,7 @@ const Footer = () => {
           </div>
           <span className="font-heading font-bold text-foreground">NutriSnap</span>
         </div>
-        <p className="text-sm text-muted-foreground">© 2026 NutriSnap. All rights reserved.</p>
+        <p className="text-sm text-muted-foreground">© 2026 NutriSnap. Todos os direitos reservados.</p>
       </div>
     </footer>
   );
