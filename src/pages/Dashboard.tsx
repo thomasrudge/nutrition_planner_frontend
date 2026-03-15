@@ -1,4 +1,4 @@
-import { Camera, Flame, Droplets, Wheat, Beef } from "lucide-react";
+import { Camera, Flame, Zap, Wheat, Beef } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +9,7 @@ const goals = [
   { label: "Calorias", current: 1450, target: 2200, unit: "kcal", icon: Flame, color: "text-accent" },
   { label: "Proteínas", current: 85, target: 150, unit: "g", icon: Beef, color: "text-primary" },
   { label: "Carboidratos", current: 180, target: 280, unit: "g", icon: Wheat, color: "text-accent" },
-  { label: "Água", current: 1.5, target: 3, unit: "L", icon: Droplets, color: "text-primary" },
+  { label: "Gorduras", current: 55, target: 80, unit: "g", icon: Zap, color: "text-primary" },
 ];
 
 const meals = [
@@ -21,7 +21,11 @@ const meals = [
 const Dashboard = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
+      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-amber-500/20 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] pointer-events-none animate-blob-delay" />
+
+
         <AppSidebar />
 
         <div className="flex-1 flex flex-col">
@@ -75,7 +79,7 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Meals */}
-            <Card>
+            <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="font-heading">Refeições de Hoje</CardTitle>
               </CardHeader>
