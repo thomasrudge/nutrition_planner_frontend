@@ -47,7 +47,10 @@ const mealsByDate: Record<string, Meal[]> = {
 };
 
 const Dashboard = () => {
-  return (
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const dateKey = format(selectedDate, "yyyy-MM-dd");
+  const meals = mealsByDate[dateKey] || [];
+  const isToday = format(new Date(), "yyyy-MM-dd") === dateKey;
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
       <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-amber-500/20 blur-[120px] pointer-events-none animate-blob" />
