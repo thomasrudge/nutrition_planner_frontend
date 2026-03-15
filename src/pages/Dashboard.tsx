@@ -1,9 +1,15 @@
-import { Camera, Flame, Zap, Wheat, Beef } from "lucide-react";
+import { useState } from "react";
+import { Camera, Flame, Zap, Wheat, Beef, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
+import { format, addDays, subDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 const goals = [
   { label: "Calorias", current: 1450, target: 2200, unit: "kcal", icon: Flame, color: "text-accent" },
@@ -12,11 +18,33 @@ const goals = [
   { label: "Gorduras", current: 55, target: 80, unit: "g", icon: Zap, color: "text-primary" },
 ];
 
-const meals = [
-  { name: "Café da manhã", time: "08:30", calories: 450 },
-  { name: "Almoço", time: "12:15", calories: 680 },
-  { name: "Lanche", time: "15:00", calories: 320 },
-];
+type Meal = {
+  name: string;
+  time: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  image?: string;
+};
+
+const mealsByDate: Record<string, Meal[]> = {
+  [format(new Date(), "yyyy-MM-dd")]: [
+    { name: "Café da manhã", time: "08:30", calories: 450, protein: 25, carbs: 55, fat: 12 },
+    { name: "Almoço", time: "12:15", calories: 680, protein: 40, carbs: 70, fat: 22 },
+    { name: "Lanche", time: "15:00", calories: 320, protein: 20, carbs: 35, fat: 10 },
+  ],
+  [format(subDays(new Date(), 1), "yyyy-MM-dd")]: [
+    { name: "Café da manhã", time: "07:45", calories: 380, protein: 18, carbs: 48, fat: 14 },
+    { name: "Almoço", time: "12:30", calories: 720, protein: 45, carbs: 65, fat: 28 },
+    { name: "Lanche", time: "16:00", calories: 200, protein: 10, carbs: 28, fat: 6 },
+    { name: "Jantar", time: "19:30", calories: 550, protein: 35, carbs: 50, fat: 18 },
+  ],
+  [format(subDays(new Date(), 2), "yyyy-MM-dd")]: [
+    { name: "Café da manhã", time: "08:00", calories: 420, protein: 22, carbs: 52, fat: 11 },
+    { name: "Almoço", time: "13:00", calories: 650, protein: 38, carbs: 72, fat: 20 },
+  ],
+};
 
 const Dashboard = () => {
   return (
