@@ -108,6 +108,9 @@ const Dashboard = () => {
               })}
             </div>
 
+            {/* Progress Chart */}
+            <ProgressChart />
+
             {/* Meals with Day Navigation */}
             <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader>
