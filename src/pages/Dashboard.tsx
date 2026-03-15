@@ -51,11 +51,12 @@ const Dashboard = () => {
   const dateKey = format(selectedDate, "yyyy-MM-dd");
   const meals = mealsByDate[dateKey] || [];
   const isToday = format(new Date(), "yyyy-MM-dd") === dateKey;
+
+  return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
-      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-amber-500/20 blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] pointer-events-none animate-blob-delay" />
-
+        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-accent/20 blur-[120px] pointer-events-none animate-blob" />
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] pointer-events-none animate-blob-delay" />
 
         <AppSidebar />
 
@@ -66,13 +67,11 @@ const Dashboard = () => {
           </header>
 
           <main className="flex-1 p-6 space-y-6 overflow-auto">
-            {/* Greeting */}
             <div>
               <h2 className="text-2xl font-heading font-bold text-foreground">Olá, Usuário 👋</h2>
               <p className="text-muted-foreground text-sm mt-1">Acompanhe suas metas nutricionais de hoje.</p>
             </div>
 
-            {/* Upload CTA */}
             <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
               <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
                 <div>
@@ -86,7 +85,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Goals Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {goals.map((goal) => {
                 const pct = Math.round((goal.current / goal.target) * 100);
@@ -109,21 +107,82 @@ const Dashboard = () => {
               })}
             </div>
 
-            {/* Recent Meals */}
+            {/* Meals with Day Navigation */}
             <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="font-heading">Refeições de Hoje</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {meals.map((meal) => (
-                  <div key={meal.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div>
-                      <p className="font-medium text-foreground">{meal.name}</p>
-                      <p className="text-xs text-muted-foreground">{meal.time}</p>
-                    </div>
-                    <span className="text-sm font-heading font-semibold text-foreground">{meal.calories} kcal</span>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="font-heading">
+                    {isToday ? "Refeições de Hoje" : "Refeições"}
+                  </CardTitle>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSelectedDate((d) => subDays(d, 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm font-medium text-foreground min-w-[140px] text-center capitalize">
+                      {isToday
+                        ? "Hoje"
+                        : format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={isToday}
+                      onClick={() => setSelectedDate((d) => addDays(d, 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => date && setSelectedDate(date)}
+                          disabled={(date) => date > new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                ))}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {meals.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhuma refeição registrada neste dia.
+                  </p>
+                ) : (
+                  meals.map((meal) => (
+                    <div key={meal.name} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+                      <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <Camera className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-foreground">{meal.name}</p>
+                          <span className="text-sm font-heading font-semibold text-foreground">{meal.calories} kcal</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">{meal.time}</p>
+                        <div className="flex gap-3 mt-1">
+                          <span className="text-xs text-primary font-medium">{meal.protein}g prot</span>
+                          <span className="text-xs text-accent font-medium">{meal.carbs}g carb</span>
+                          <span className="text-xs text-muted-foreground font-medium">{meal.fat}g gord</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </main>
