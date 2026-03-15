@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TrendingUp } from "lucide-react";
 
 type Period = "week" | "month" | "year";
 
@@ -44,27 +45,42 @@ const yearData = [
   fat: 50 + Math.round(Math.random() * 35),
 }));
 
-const dataMap: Record<Period, typeof weekData> = {
-  week: weekData,
-  month: monthData,
-  year: yearData,
+const dataMap: Record<Period, typeof weekData> = { week: weekData, month: monthData, year: yearData };
+
+const GOALS = { calories: 2200, protein: 150, carbs: 280, fat: 80 };
+
+const axisStyle = { fill: "hsl(150 8% 55%)", fontSize: 12 };
+const gridStroke = "hsl(150 10% 15%)";
+const tooltipStyle = {
+  backgroundColor: "hsl(150 15% 7%)",
+  border: "1px solid hsl(150 10% 15%)",
+  borderRadius: "0.5rem",
+  color: "hsl(60 10% 92%)",
+  fontSize: 13,
 };
 
-const CALORIE_GOAL = 2200;
+const COLORS = {
+  calories: "hsl(145 72% 45%)",
+  protein: "hsl(145 72% 45%)",
+  carbs: "hsl(38 92% 55%)",
+  fat: "hsl(150 8% 55%)",
+};
 
 export function ProgressChart() {
   const [period, setPeriod] = useState<Period>("week");
   const data = dataMap[period];
+
+  const hitPct = useMemo(() => {
+    const hits = data.filter((d) => d.calories >= GOALS.calories).length;
+    return Math.round((hits / data.length) * 100);
+  }, [data]);
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm">
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <CardTitle className="font-heading">Progresso</CardTitle>
-          <Tabs
-            value={period}
-            onValueChange={(v) => setPeriod(v as Period)}
-          >
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
             <TabsList className="h-8">
               <TabsTrigger value="week" className="text-xs px-3 h-7">Semana</TabsTrigger>
               <TabsTrigger value="month" className="text-xs px-3 h-7">Mês</TabsTrigger>
@@ -73,93 +89,101 @@ export function ProgressChart() {
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(150 10% 15%)" />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: "hsl(150 8% 55%)", fontSize: 12 }}
-              axisLine={{ stroke: "hsl(150 10% 15%)" }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "hsl(150 8% 55%)", fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(150 15% 7%)",
-                border: "1px solid hsl(150 10% 15%)",
-                borderRadius: "0.5rem",
-                color: "hsl(60 10% 92%)",
-                fontSize: 13,
-              }}
-              labelStyle={{ color: "hsl(60 10% 92%)", fontWeight: 600 }}
-              formatter={(value: number, name: string) => {
-                const labels: Record<string, string> = {
-                  calories: "Calorias",
-                  protein: "Proteínas",
-                  carbs: "Carboidratos",
-                  fat: "Gorduras",
-                };
-                return [
-                  `${value}${name === "calories" ? " kcal" : "g"}`,
-                  labels[name] || name,
-                ];
-              }}
-            />
-            <Legend
-              formatter={(value: string) => {
-                const labels: Record<string, string> = {
-                  calories: "Calorias",
-                  protein: "Proteínas",
-                  carbs: "Carboidratos",
-                  fat: "Gorduras",
-                };
-                return labels[value] || value;
-              }}
-              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-            />
-            <ReferenceLine
-              y={CALORIE_GOAL}
-              stroke="hsl(38 92% 55%)"
-              strokeDasharray="6 3"
-              strokeWidth={2}
-              label={{
-                value: `Meta ${CALORIE_GOAL}`,
-                fill: "hsl(38 92% 55%)",
-                fontSize: 11,
-                position: "insideTopRight",
-              }}
-            />
-            <Bar
-              dataKey="calories"
-              fill="hsl(145 72% 45%)"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={40}
-            />
-            <Bar
-              dataKey="protein"
-              fill="hsl(145 72% 45% / 0.4)"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={40}
-            />
-            <Bar
-              dataKey="carbs"
-              fill="hsl(38 92% 55% / 0.6)"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={40}
-            />
-            <Bar
-              dataKey="fat"
-              fill="hsl(150 8% 55% / 0.5)"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={40}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent className="space-y-6">
+        {/* Hit-rate stat */}
+        <div className="flex items-center gap-2 px-1">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <span className="text-sm text-muted-foreground">
+            Meta calórica atingida em{" "}
+            <span className="font-semibold text-foreground">{hitPct}%</span> dos dias
+          </span>
+        </div>
+
+        {/* Chart 1 — Calories */}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-2 px-1">Calorias (kcal)</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="day" tick={axisStyle} axisLine={{ stroke: gridStroke }} tickLine={false} />
+              <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                labelStyle={{ color: "hsl(60 10% 92%)", fontWeight: 600 }}
+                formatter={(v: number) => [`${v} kcal`, "Calorias"]}
+              />
+              <ReferenceLine
+                y={GOALS.calories}
+                stroke="hsl(38 92% 55%)"
+                strokeDasharray="6 3"
+                strokeWidth={2}
+                label={{ value: `Meta ${GOALS.calories}`, fill: "hsl(38 92% 55%)", fontSize: 11, position: "insideTopRight" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="calories"
+                stroke={COLORS.calories}
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: COLORS.calories, strokeWidth: 0 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Chart 2 — Macros */}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-2 px-1">Macronutrientes (g)</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="day" tick={axisStyle} axisLine={{ stroke: gridStroke }} tickLine={false} />
+              <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                labelStyle={{ color: "hsl(60 10% 92%)", fontWeight: 600 }}
+                formatter={(v: number, name: string) => {
+                  const labels: Record<string, string> = { protein: "Proteínas", carbs: "Carboidratos", fat: "Gorduras" };
+                  return [`${v}g`, labels[name] || name];
+                }}
+              />
+              <Legend
+                formatter={(v: string) => {
+                  const labels: Record<string, string> = { protein: "Proteínas", carbs: "Carboidratos", fat: "Gorduras" };
+                  return labels[v] || v;
+                }}
+                wrapperStyle={{ fontSize: 12, paddingTop: 8, cursor: "pointer" }}
+              />
+              <ReferenceLine y={GOALS.protein} stroke={COLORS.protein} strokeDasharray="4 3" strokeWidth={1.5} />
+              <ReferenceLine y={GOALS.carbs} stroke={COLORS.carbs} strokeDasharray="4 3" strokeWidth={1.5} />
+              <ReferenceLine y={GOALS.fat} stroke={COLORS.fat} strokeDasharray="4 3" strokeWidth={1.5} />
+              <Line
+                type="monotone"
+                dataKey="protein"
+                stroke={COLORS.protein}
+                strokeWidth={2}
+                dot={{ r: 3, fill: COLORS.protein, strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="carbs"
+                stroke={COLORS.carbs}
+                strokeWidth={2}
+                dot={{ r: 3, fill: COLORS.carbs, strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="fat"
+                stroke={COLORS.fat}
+                strokeWidth={2}
+                dot={{ r: 3, fill: COLORS.fat, strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
