@@ -10,8 +10,8 @@ const HeroSection = ({ onOpenAuth }: HeroSectionProps) => {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       <div className="absolute inset-0 bg-[var(--gradient-dark)]" />
-      <div className="absolute top-1/4 -right-32 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" />
+      {/* <div className="absolute top-1/4 -right-32 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" /> */}
 
       <div className="container relative mx-auto px-6 py-24 grid lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8">

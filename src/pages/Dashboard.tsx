@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Camera, Flame, Zap, Wheat, Beef, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -11,6 +11,7 @@ import { ProgressChart } from "@/components/ProgressChart";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import api from "@/lib/api";
 
 const goals = [
   { label: "Calorias", current: 1450, target: 2200, unit: "kcal", icon: Flame, color: "text-accent" },
@@ -52,12 +53,25 @@ const Dashboard = () => {
   const dateKey = format(selectedDate, "yyyy-MM-dd");
   const meals = mealsByDate[dateKey] || [];
   const isToday = format(new Date(), "yyyy-MM-dd") === dateKey;
+  const [userName, setUserName] = useState("Usuário");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const userId = payload.sub;
+      const response = await api.get(`/users/${userId}`);
+      setUserName(response.data.name.split(" ")[0]);
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
-        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-accent/20 blur-[120px] pointer-events-none animate-blob" />
-        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] pointer-events-none animate-blob-delay" />
+        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob" />
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob-delay" />
 
         <AppSidebar />
 
@@ -69,7 +83,7 @@ const Dashboard = () => {
 
           <main className="flex-1 p-6 space-y-6 overflow-auto">
             <div>
-              <h2 className="text-2xl font-heading font-bold text-foreground">Olá, Usuário 👋</h2>
+              <h2 className="text-2xl font-heading font-bold text-foreground">Olá, {userName} 👋</h2>
               <p className="text-muted-foreground text-sm mt-1">Acompanhe suas metas nutricionais de hoje.</p>
             </div>
 
@@ -107,9 +121,6 @@ const Dashboard = () => {
                 );
               })}
             </div>
-
-            {/* Progress Chart */}
-            <ProgressChart />
 
             {/* Meals with Day Navigation */}
             <Card className="bg-card/50 backdrop-blur-sm">
@@ -181,7 +192,7 @@ const Dashboard = () => {
                         <div className="flex gap-3 mt-1">
                           <span className="text-xs text-primary font-medium">{meal.protein}g prot</span>
                           <span className="text-xs text-accent font-medium">{meal.carbs}g carb</span>
-                          <span className="text-xs text-muted-foreground font-medium">{meal.fat}g gord</span>
+                          <span className="text-xs text-foreground font-medium">{meal.fat}g gord</span>
                         </div>
                       </div>
                     </div>
@@ -189,6 +200,8 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
+            {/* Progress Chart */}
+            <ProgressChart />
           </main>
         </div>
       </div>

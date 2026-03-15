@@ -12,8 +12,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-amber-500/20 blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute top-[500px] right-[-200px] w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] pointer-events-none animate-blob-delay" />
+      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[260px] pointer-events-none animate-blob" />
+      <div className="absolute top-[500px] right-[-200px] w-[600px] h-[600px] rounded-full bg-amber-500/15 blur-[260px] pointer-events-none animate-blob-delay" />
       <Navbar onOpenAuth={() => setIsAuthOpen(true)} />
       <HeroSection onOpenAuth={() => setIsAuthOpen(true)} />
       <FeaturesSection />
