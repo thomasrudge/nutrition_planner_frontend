@@ -8,6 +8,7 @@ import AuthPage from "./pages/AuthPage.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import UploadMeal from "./pages/UploadMeal.tsx";
+import MealReview from "./pages/MealReview.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
