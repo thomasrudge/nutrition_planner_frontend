@@ -1,6 +1,7 @@
 import { Home, Camera, Target, History, Settings, LogOut, Utensils } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   Sidebar,
@@ -33,6 +34,13 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   const isActive = (path: string) => currentPath === path;
+
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -97,7 +105,10 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-muted-foreground hover:text-destructive">
+            <SidebarMenuButton 
+                onClick={handleSignOut}
+                className="text-muted-foreground hover:text-destructive"
+              >
               <LogOut className="mr-2 h-4 w-4" />
               {!collapsed && <span>Sair</span>}
             </SidebarMenuButton>

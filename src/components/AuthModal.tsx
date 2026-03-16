@@ -16,12 +16,19 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     //console.log(isSignUp ? "Cadastro:" : "Login:", form);
 
-    const response = isSignUp
+    if (form.password.length < 8) {
+      setError("A senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+
+    try{
+      const response = isSignUp
     ? await api.post("/auth/signup", form)
     : await api.post("/auth/signin", form);
 
@@ -29,6 +36,18 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     localStorage.setItem("token", token);
 
     navigate("/dashboard");
+    }
+    catch(err: any){
+      console.error("Erro na autenticação:", err);
+      const message = err.response?.data?.message;
+      if (message === "Email in use") {
+        setError("Este email já está em uso.");
+      } else {
+        setError("Ocorreu um erro. Verifique suas credenciais e tente novamente.");
+      }
+    }
+    
+    
   };
 
   return (
@@ -121,7 +140,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </button>
               </div>
             </div>
-
+            {error && (
+              <p className="text-sm text-destructive text-center">{error}</p>
+            )}
             <Button
               type="submit"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-glow)] rounded-xl h-12 font-heading font-semibold text-base"
@@ -133,8 +154,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
+              
               <button
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => { setIsSignUp(!isSignUp); setError(""); }}
                 className="text-primary font-semibold hover:underline"
               >
                 {isSignUp ? "Faça login" : "Cadastre-se"}
