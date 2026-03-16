@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import UploadMeal from "./pages/UploadMeal.tsx";
 import MealReview from "./pages/MealReview.tsx";
+import MealHistory from "./pages/MealHistory.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
