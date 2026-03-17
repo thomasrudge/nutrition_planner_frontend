@@ -13,13 +13,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 
-const goals = [
-  { label: "Calorias", current: 1450, target: 2200, unit: "kcal", icon: Flame, color: "text-accent" },
-  { label: "Proteínas", current: 85, target: 150, unit: "g", icon: Beef, color: "text-primary" },
-  { label: "Carboidratos", current: 180, target: 280, unit: "g", icon: Wheat, color: "text-accent" },
-  { label: "Gorduras", current: 55, target: 80, unit: "g", icon: Zap, color: "text-primary" },
-];
-
 type Meal = {
   name: string;
   time: string;
@@ -30,38 +23,33 @@ type Meal = {
   image?: string;
 };
 
-const mealsByDate: Record<string, Meal[]> = {
-  [format(new Date(), "yyyy-MM-dd")]: [
-    { name: "Café da manhã", time: "08:30", calories: 450, protein: 25, carbs: 55, fat: 12 },
-    { name: "Almoço", time: "12:15", calories: 680, protein: 40, carbs: 70, fat: 22 },
-    { name: "Lanche", time: "15:00", calories: 320, protein: 20, carbs: 35, fat: 10 },
-  ],
-  [format(subDays(new Date(), 1), "yyyy-MM-dd")]: [
-    { name: "Café da manhã", time: "07:45", calories: 380, protein: 18, carbs: 48, fat: 14 },
-    { name: "Almoço", time: "12:30", calories: 720, protein: 45, carbs: 65, fat: 28 },
-    { name: "Lanche", time: "16:00", calories: 200, protein: 10, carbs: 28, fat: 6 },
-    { name: "Jantar", time: "19:30", calories: 550, protein: 35, carbs: 50, fat: 18 },
-  ],
-  [format(subDays(new Date(), 2), "yyyy-MM-dd")]: [
-    { name: "Café da manhã", time: "08:00", calories: 420, protein: 22, carbs: 52, fat: 11 },
-    { name: "Almoço", time: "13:00", calories: 650, protein: 38, carbs: 72, fat: 20 },
-  ],
-};
-
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const dateKey = format(selectedDate, "yyyy-MM-dd");
-  const meals = mealsByDate[dateKey] || [];
   const isToday = format(new Date(), "yyyy-MM-dd") === dateKey;
   const [userName, setUserName] = useState("Usuário");
+  const [meals, setMeals] = useState<Meal[]>([]);
+
+  // Goals default to 0 until loaded from backend
+  const goals = [
+    { label: "Calorias", current: 0, target: 0, unit: "kcal", icon: Flame, color: "text-accent" },
+    { label: "Proteínas", current: 0, target: 0, unit: "g", icon: Beef, color: "text-primary" },
+    { label: "Carboidratos", current: 0, target: 0, unit: "g", icon: Wheat, color: "text-accent" },
+    { label: "Gorduras", current: 0, target: 0, unit: "g", icon: Zap, color: "text-primary" },
+  ];
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const userId = payload.sub;
-      const response = await api.get(`/users/${userId}`);
-      setUserName(response.data.name.split(" ")[0]);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userId = payload.sub;
+        const response = await api.get(`/users/${userId}`);
+        setUserName(response.data.name.split(" ")[0]);
+      } catch {
+        // keep default
+      }
     };
 
     fetchUser();
@@ -102,7 +90,7 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {goals.map((goal) => {
-                const pct = Math.round((goal.current / goal.target) * 100);
+                const pct = goal.target > 0 ? Math.round((goal.current / goal.target) * 100) : 0;
                 return (
                   <Card key={goal.label}>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">

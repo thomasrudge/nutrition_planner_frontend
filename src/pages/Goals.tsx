@@ -15,26 +15,27 @@ const goalConfig: { key: GoalKey; label: string; unit: string; icon: typeof Flam
   { key: "fat", label: "Gorduras", unit: "g", icon: Zap, color: "text-primary" },
 ];
 
-type WeekDay = "hit" | "missed" | "none";
-
-const initialGoals: Record<GoalKey, number> = {
-  calories: 2200,
-  protein: 150,
-  carbs: 280,
-  fat: 80,
-};
-
-// Mock weekly data per goal
-const weeklyData: Record<GoalKey, WeekDay[]> = {
-  calories: ["hit", "hit", "missed", "hit", "hit", "missed", "none"],
-  protein: ["hit", "missed", "hit", "hit", "missed", "hit", "none"],
-  carbs: ["hit", "hit", "hit", "missed", "hit", "hit", "none"],
-  fat: ["missed", "hit", "hit", "hit", "hit", "missed", "none"],
-};
+type WeekDay = "none";
 
 const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-const dotColor: Record<WeekDay, string> = {
+// Empty goals — will be loaded from backend
+const initialGoals: Record<GoalKey, number> = {
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+};
+
+// No data until backend is connected
+const weeklyData: Record<GoalKey, WeekDay[]> = {
+  calories: ["none", "none", "none", "none", "none", "none", "none"],
+  protein: ["none", "none", "none", "none", "none", "none", "none"],
+  carbs: ["none", "none", "none", "none", "none", "none", "none"],
+  fat: ["none", "none", "none", "none", "none", "none", "none"],
+};
+
+const dotColor: Record<string, string> = {
   hit: "bg-primary",
   missed: "bg-destructive",
   none: "bg-muted",
@@ -114,7 +115,7 @@ const Goals = () => {
                     ) : (
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-heading font-bold text-foreground">
-                          {goals[key]}
+                          {goals[key] > 0 ? goals[key] : "—"}
                           <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>
                         </span>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => startEdit(key)}>
