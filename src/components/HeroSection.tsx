@@ -45,9 +45,9 @@ const HeroSection = ({ onOpenAuth }: HeroSectionProps) => {
 
           <div className="flex items-center gap-8 pt-4">
             {[
-              { value: "50K+", label: "Usuários ativos" },
-              { value: "2M+", label: "Refeições analisadas" },
-              { value: "98%", label: "Precisão" },
+              { value: "—", label: "Usuários ativos" },
+              { value: "—", label: "Refeições analisadas" },
+              { value: "IA", label: "Análise inteligente" },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="font-heading text-2xl font-bold text-foreground">{stat.value}</div>

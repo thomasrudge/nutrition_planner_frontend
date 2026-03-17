@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Pencil, Check, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,16 +18,13 @@ type FoodItem = {
   fat: number;
 };
 
-const initialItems: FoodItem[] = [
-  { id: 1, name: "Arroz branco", weight: 150, calories: 195, protein: 3.6, carbs: 43.2, fat: 0.4 },
-  { id: 2, name: "Feijão carioca", weight: 100, calories: 76, protein: 4.8, carbs: 13.6, fat: 0.5 },
-  { id: 3, name: "Frango grelhado", weight: 120, calories: 198, protein: 37.2, carbs: 0, fat: 4.3 },
-  { id: 4, name: "Salada verde", weight: 80, calories: 12, protein: 1.0, carbs: 2.2, fat: 0.2 },
-];
-
 const MealReview = () => {
   const navigate = useNavigate();
-  const [items, setItems] = useState<FoodItem[]>(initialItems);
+  const location = useLocation();
+  const mealItems = (location.state?.items as FoodItem[]) || [];
+  const mealImage = (location.state?.image as string) || "";
+
+  const [items, setItems] = useState<FoodItem[]>(mealItems);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Partial<FoodItem>>({});
   const [notes, setNotes] = useState("");
@@ -78,11 +75,11 @@ const MealReview = () => {
             <Card className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="aspect-square bg-secondary flex items-center justify-center">
-                  <img
-                    src="/placeholder.svg"
-                    alt="Refeição"
-                    className="w-full h-full object-cover"
-                  />
+                  {mealImage ? (
+                    <img src={mealImage} alt="Refeição" className="w-full h-full object-cover" />
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Nenhuma foto disponível</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -94,70 +91,76 @@ const MealReview = () => {
                   <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
                     Itens Detectados
                   </h2>
-                  <div className="space-y-3">
-                    {items.map((item) => {
-                      const isEditing = editingId === item.id;
-                      return (
-                        <div
-                          key={item.id}
-                          className="rounded-lg border border-border bg-secondary/50 p-3 space-y-2"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-foreground">{item.name}</span>
-                            <div className="flex items-center gap-1">
-                              {isEditing ? (
-                                <>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(item.id)}>
-                                    <Check className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={cancelEdit}>
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEdit(item)}>
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
-                                    <X className="h-3.5 w-3.5" />
-                                  </Button>
-                                </>
-                              )}
+                  {items.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      Nenhum item detectado. Envie uma foto para análise.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {items.map((item) => {
+                        const isEditing = editingId === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            className="rounded-lg border border-border bg-secondary/50 p-3 space-y-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium text-foreground">{item.name}</span>
+                              <div className="flex items-center gap-1">
+                                {isEditing ? (
+                                  <>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(item.id)}>
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={cancelEdit}>
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEdit(item)}>
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                                      <X className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
 
-                          {isEditing ? (
-                            <div className="grid grid-cols-5 gap-2">
-                              {(["weight", "calories", "protein", "carbs", "fat"] as const).map((field) => (
-                                <div key={field} className="space-y-1">
-                                  <label className="text-[10px] uppercase text-muted-foreground">
-                                    {field === "weight" ? "g" : field === "calories" ? "kcal" : field === "protein" ? "prot" : field === "carbs" ? "carb" : "gord"}
-                                  </label>
-                                  <Input
-                                    type="number"
-                                    className="h-8 text-xs"
-                                    value={editValues[field] ?? ""}
-                                    onChange={(e) =>
-                                      setEditValues((v) => ({ ...v, [field]: parseFloat(e.target.value) || 0 }))
-                                    }
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                              <span>{item.weight}g</span>
-                              <span className="text-accent">{item.calories} kcal</span>
-                              <span>P {item.protein}g</span>
-                              <span>C {item.carbs}g</span>
-                              <span>G {item.fat}g</span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                            {isEditing ? (
+                              <div className="grid grid-cols-5 gap-2">
+                                {(["weight", "calories", "protein", "carbs", "fat"] as const).map((field) => (
+                                  <div key={field} className="space-y-1">
+                                    <label className="text-[10px] uppercase text-muted-foreground">
+                                      {field === "weight" ? "g" : field === "calories" ? "kcal" : field === "protein" ? "prot" : field === "carbs" ? "carb" : "gord"}
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      className="h-8 text-xs"
+                                      value={editValues[field] ?? ""}
+                                      onChange={(e) =>
+                                        setEditValues((v) => ({ ...v, [field]: parseFloat(e.target.value) || 0 }))
+                                      }
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                <span>{item.weight}g</span>
+                                <span className="text-accent">{item.calories} kcal</span>
+                                <span>P {item.protein}g</span>
+                                <span>C {item.carbs}g</span>
+                                <span>G {item.fat}g</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
