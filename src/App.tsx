@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound.tsx";
 import UploadMeal from "./pages/UploadMeal.tsx";
 import MealReview from "./pages/MealReview.tsx";
 import MealHistory from "./pages/MealHistory.tsx";
+import Onboarding from "./pages/Onboarding.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/upload" element={<ProtectedRoute><UploadMeal /></ProtectedRoute>} />
           <Route path="/dashboard/revisao" element={<ProtectedRoute><MealReview /></ProtectedRoute>} />
