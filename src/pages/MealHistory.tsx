@@ -39,6 +39,14 @@ const mealTypeColors: Record<string, string> = {
   "Lanche": "bg-primary/20 text-primary",
 };
 
+const bgIcons = [
+  { Icon: UtensilsCrossed, className: "top-[12%] left-[8%] rotate-[-15deg]" },
+  { Icon: Apple, className: "top-[25%] right-[10%] rotate-[20deg]" },
+  { Icon: Flame, className: "bottom-[30%] left-[5%] rotate-[10deg]" },
+  { Icon: Leaf, className: "bottom-[15%] right-[7%] rotate-[-25deg]" },
+  { Icon: Utensils, className: "top-[55%] left-[85%] rotate-[30deg]" },
+];
+
 const MealHistory = () => {
   const navigate = useNavigate();
   const [typeFilter, setTypeFilter] = useState<string>("all");
