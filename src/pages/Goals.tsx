@@ -114,15 +114,13 @@ const Goals = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
-        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob" />
-        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob" />
-        {bgIcons.map(({ Icon, className }, i) => (
-          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
-        ))}
+        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob z-0" />
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob z-0" />
+        <BackgroundIcons />
 
         <AppSidebar />
 
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative z-10">
           <header className="h-14 flex items-center border-b border-border px-4 gap-4">
             <SidebarTrigger />
             <h1 className="font-heading font-bold text-foreground">Metas</h1>
