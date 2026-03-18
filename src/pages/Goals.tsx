@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Flame, Beef, Wheat, Zap, Pencil, Check, X, UtensilsCrossed, Apple, Leaf, Utensils } from "lucide-react";
+import { Flame, Beef, Wheat, Zap, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
