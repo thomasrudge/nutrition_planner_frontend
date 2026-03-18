@@ -13,6 +13,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import api from "@/lib/api";
+import BackgroundIcons from "@/components/BackgroundIcons";
 
 const mealTypes = [
   { value: "breakfast", label: "Café da manhã" },
