@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Camera, Upload, ArrowLeft, UtensilsCrossed, Apple, Flame, Leaf, Utensils } from "lucide-react";
+import { Camera, Upload, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
