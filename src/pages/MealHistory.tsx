@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { cn } from "@/lib/utils";
+import BackgroundIcons from "@/components/BackgroundIcons";
 
 type MealEntry = {
   id: number;
