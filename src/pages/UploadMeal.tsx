@@ -23,13 +23,6 @@ const mealTypes = [
   { value: "other", label: "Outro" },
 ];
 
-const bgIcons = [
-  { Icon: UtensilsCrossed, className: "top-[12%] left-[8%] rotate-[-15deg]" },
-  { Icon: Apple, className: "top-[25%] right-[10%] rotate-[20deg]" },
-  { Icon: Flame, className: "bottom-[30%] left-[5%] rotate-[10deg]" },
-  { Icon: Leaf, className: "bottom-[15%] right-[7%] rotate-[-25deg]" },
-  { Icon: Utensils, className: "top-[55%] left-[85%] rotate-[30deg]" },
-];
 
 const UploadMeal = () => {
   const navigate = useNavigate();
