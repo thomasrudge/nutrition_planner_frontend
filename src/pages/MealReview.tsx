@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Pencil, Check, X, UtensilsCrossed, Apple, Flame, Leaf, Utensils } from "lucide-react";
+import { ArrowLeft, Pencil, Check, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
