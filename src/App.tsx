@@ -11,6 +11,7 @@ import UploadMeal from "./pages/UploadMeal.tsx";
 import MealReview from "./pages/MealReview.tsx";
 import MealHistory from "./pages/MealHistory.tsx";
 import Goals from "./pages/Goals.tsx";
+import Settings from "./pages/Settings.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
