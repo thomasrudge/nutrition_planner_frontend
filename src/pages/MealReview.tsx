@@ -82,7 +82,10 @@ const MealReview = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background relative overflow-hidden">
+        {bgIcons.map(({ Icon, className }, i) => (
+          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
+        ))}
         <AppSidebar />
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <div className="flex items-center gap-3 mb-8">

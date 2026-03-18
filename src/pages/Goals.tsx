@@ -122,6 +122,9 @@ const Goals = () => {
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
         <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob" />
         <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob" />
+        {bgIcons.map(({ Icon, className }, i) => (
+          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
+        ))}
 
         <AppSidebar />
 
