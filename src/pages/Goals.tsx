@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import api from "@/lib/api";
+import BackgroundIcons from "@/components/BackgroundIcons";
 import { tr } from "date-fns/locale";
 
 type GoalKey = "calories" | "protein" | "carbs" | "fats";
