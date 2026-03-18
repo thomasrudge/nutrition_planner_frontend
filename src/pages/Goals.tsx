@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Flame, Beef, Wheat, Zap, Pencil, Check, X } from "lucide-react";
+import { Flame, Beef, Wheat, Zap, Pencil, Check, X, UtensilsCrossed, Apple, Leaf, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,14 @@ const dotColor: Record<string, string> = {
   missed: "bg-destructive",
   none: "bg-muted",
 };
+
+const bgIcons = [
+  { Icon: UtensilsCrossed, className: "top-[12%] left-[8%] rotate-[-15deg]" },
+  { Icon: Apple, className: "top-[25%] right-[10%] rotate-[20deg]" },
+  { Icon: Flame, className: "bottom-[30%] left-[5%] rotate-[10deg]" },
+  { Icon: Leaf, className: "bottom-[15%] right-[7%] rotate-[-25deg]" },
+  { Icon: Utensils, className: "top-[55%] left-[85%] rotate-[30deg]" },
+];
 
 const Goals = () => {
   const [goals, setGoals] = useState(initialGoals);
@@ -114,6 +122,9 @@ const Goals = () => {
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
         <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob" />
         <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob" />
+        {bgIcons.map(({ Icon, className }, i) => (
+          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
+        ))}
 
         <AppSidebar />
 

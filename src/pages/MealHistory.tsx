@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, Flame, Beef, Wheat, Zap, ImageIcon } from "lucide-react";
+import { Search, ChevronDown, Flame, Beef, Wheat, Zap, ImageIcon, UtensilsCrossed, Apple, Leaf, Utensils } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,14 @@ const mealTypeColors: Record<string, string> = {
   "Lanche": "bg-primary/20 text-primary",
 };
 
+const bgIcons = [
+  { Icon: UtensilsCrossed, className: "top-[12%] left-[8%] rotate-[-15deg]" },
+  { Icon: Apple, className: "top-[25%] right-[10%] rotate-[20deg]" },
+  { Icon: Flame, className: "bottom-[30%] left-[5%] rotate-[10deg]" },
+  { Icon: Leaf, className: "bottom-[15%] right-[7%] rotate-[-25deg]" },
+  { Icon: Utensils, className: "top-[55%] left-[85%] rotate-[30deg]" },
+];
+
 const MealHistory = () => {
   const navigate = useNavigate();
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -73,7 +81,10 @@ const MealHistory = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex min-h-screen w-full bg-background relative overflow-hidden">
+        {bgIcons.map(({ Icon, className }, i) => (
+          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
+        ))}
         <AppSidebar />
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <div className="flex items-center gap-2 mb-6">

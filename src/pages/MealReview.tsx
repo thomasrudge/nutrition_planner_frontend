@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, Pencil, Check, X, UtensilsCrossed, Apple, Flame, Leaf, Utensils } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,14 @@ type FoodItem = {
   carbs: number;
   fats: number;
 };
+
+const bgIcons = [
+  { Icon: UtensilsCrossed, className: "top-[12%] left-[8%] rotate-[-15deg]" },
+  { Icon: Apple, className: "top-[25%] right-[10%] rotate-[20deg]" },
+  { Icon: Flame, className: "bottom-[30%] left-[5%] rotate-[10deg]" },
+  { Icon: Leaf, className: "bottom-[15%] right-[7%] rotate-[-25deg]" },
+  { Icon: Utensils, className: "top-[55%] left-[85%] rotate-[30deg]" },
+];
 
 const MealReview = () => {
   const navigate = useNavigate();
@@ -74,7 +82,10 @@ const MealReview = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background relative overflow-hidden">
+        {bgIcons.map(({ Icon, className }, i) => (
+          <Icon key={i} className={`absolute w-16 h-16 text-muted-foreground/[0.04] pointer-events-none ${className}`} />
+        ))}
         <AppSidebar />
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <div className="flex items-center gap-3 mb-8">
