@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, Flame, Beef, Wheat, Zap, ImageIcon, UtensilsCrossed, Apple, Leaf, Utensils } from "lucide-react";
+import { Search, ChevronDown, Flame, Beef, Wheat, Zap, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
