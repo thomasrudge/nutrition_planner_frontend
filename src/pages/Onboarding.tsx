@@ -8,12 +8,13 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Target, Activity, Utensils, Apple, Flame, Leaf, UtensilsCrossed } from "lucide-react";
+import api from "@/lib/api";
 
 const activityLevels = [
   { value: "sedentary", label: "Sedentário", description: "Pouca ou nenhuma atividade física. Trabalho de escritório sem exercícios regulares." },
-  { value: "light", label: "Levemente ativo", description: "Exercício leve 1–3 dias por semana, como caminhadas curtas ou tarefas domésticas." },
-  { value: "moderate", label: "Moderadamente ativo", description: "Exercício moderado 3–5 dias por semana, como corrida, musculação ou esportes." },
-  { value: "very_active", label: "Muito ativo", description: "Exercício intenso 6–7 dias por semana ou trabalho físico exigente." },
+  { value: "lightly active", label: "Levemente ativo", description: "Exercício leve 1–3 dias por semana, como caminhadas curtas ou tarefas domésticas." },
+  { value: "moderately active", label: "Moderadamente ativo", description: "Exercício moderado 3–5 dias por semana, como corrida, musculação ou esportes." },
+  { value: "very active", label: "Muito ativo", description: "Exercício intenso 6–7 dias por semana ou trabalho físico exigente." },
 ];
 
 const months = [
@@ -42,13 +43,14 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+  const [gender, setGender] = useState("");
   const [birthDay, setBirthDay] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthYear, setBirthYear] = useState("");
   const [calories, setCalories] = useState("2000");
   const [protein, setProtein] = useState("150");
   const [carbs, setCarbs] = useState("250");
-  const [fat, setFat] = useState("65");
+  const [fats, setFats] = useState("65");
   const [activityLevel, setActivityLevel] = useState("moderate");
 
   const progressValue = (step / 3) * 100;
@@ -60,9 +62,34 @@ const Onboarding = () => {
     <Activity key="activity" className="h-5 w-5" />,
   ];
 
-  const stepLabels = ["Dados Pessoais", "Metas", "Atividade"];
+  const stepLabels = ["Dados Pessoais", "Atividade", "Metas"];
 
-  const handleFinish = () => {
+  const handleAnalyze = async() => {
+    try {
+      const response = await api.post('/user-goal',{
+        height: Number(height),
+        weight: Number(weight),
+        birthDate: `${birthYear}-${birthMonth}-${birthDay}`,
+        activityLevel,
+        gender,
+
+      })
+
+      setProtein(String(response.data.protein));
+      setCarbs(String(response.data.carbs));
+      setFats(String(response.data.fats));
+      setCalories(String(response.data.calories));
+
+    } catch (error) {
+      console.error("Error saving user goals:", error);
+    }
+
+    setStep(3);
+
+  };
+
+  const handleFinish = async() => {
+
     navigate("/dashboard");
   };
 
@@ -70,7 +97,7 @@ const Onboarding = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated gradient blobs */}
       <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[260px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[260px] pointer-events-none animate-blob-delay" />
+      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[100px] pointer-events-none animate-blob-delay" />
 
       {/* Background logo & tagline */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
@@ -129,6 +156,18 @@ const Onboarding = () => {
                 <Input id="weight" type="number" placeholder="Ex: 72" value={weight} onChange={(e) => setWeight(e.target.value)} />
               </div>
               <div className="space-y-2">
+                <Label>Gênero</Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Masculino</SelectItem>
+                    <SelectItem value="female">Feminino</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label>Data de nascimento</Label>
                 <div className="grid grid-cols-3 gap-3">
                   <Select value={birthDay} onValueChange={setBirthDay}>
@@ -180,41 +219,6 @@ const Onboarding = () => {
         {step === 2 && (
           <Card className="border-border animate-fade-in">
             <CardHeader>
-              <CardTitle className="font-heading text-xl">Suas Metas Diárias</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="calories">Calorias (kcal)</Label>
-                <Input id="calories" type="number" placeholder="2000" value={calories} onChange={(e) => setCalories(e.target.value)} />
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="protein">Proteína (g)</Label>
-                  <Input id="protein" type="number" placeholder="150" value={protein} onChange={(e) => setProtein(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="carbs">Carboidratos (g)</Label>
-                  <Input id="carbs" type="number" placeholder="250" value={carbs} onChange={(e) => setCarbs(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fat">Gorduras (g)</Label>
-                  <Input id="fat" type="number" placeholder="65" value={fat} onChange={(e) => setFat(e.target.value)} />
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>Voltar</Button>
-                <Button className="flex-1" onClick={() => setStep(3)} disabled={!calories || !protein || !carbs || !fat}>
-                  Próximo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Step 3 */}
-        {step === 3 && (
-          <Card className="border-border animate-fade-in">
-            <CardHeader>
               <CardTitle className="font-heading text-xl">Nível de Atividade</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -238,12 +242,51 @@ const Onboarding = () => {
                 ))}
               </RadioGroup>
               <div className="flex gap-3">
+                <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>Voltar</Button>
+                <Button className="flex-1" onClick={handleAnalyze} disabled={!calories || !protein || !carbs || !fats}>
+                  Próximo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 3 */}
+        {step === 3 && (
+          <Card className="border-border animate-fade-in">
+            <CardHeader>
+              <CardTitle className="font-heading text-xl">Suas Metas Diárias</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Com base nos seus dados, calculamos as metas ídeais para você! </p>
+              <p className="text-sm text-muted-foreground mt-1">Ajuste os valores se preferir e comece a sua jornada. </p>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="calories">Calorias (kcal)</Label>
+                <Input id="calories" type="number" placeholder="2000" value={calories} onChange={(e) => setCalories(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="protein">Proteína (g)</Label>
+                  <Input id="protein" type="number" placeholder="150" value={protein} onChange={(e) => setProtein(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="carbs">Carboidratos (g)</Label>
+                  <Input id="carbs" type="number" placeholder="250" value={carbs} onChange={(e) => setCarbs(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fat">Gorduras (g)</Label>
+                  <Input id="fat" type="number" placeholder="65" value={fats} onChange={(e) => setFats(e.target.value)} />
+                </div>
+              </div>
+              <div className="flex gap-3">
                 <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Voltar</Button>
                 <Button className="flex-1" onClick={handleFinish}>Começar</Button>
               </div>
             </CardContent>
           </Card>
         )}
+
+        
       </div>
     </div>
   );

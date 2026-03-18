@@ -12,15 +12,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
+import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
+
 
 type Meal = {
+  MealId: string;
   name: string;
-  time: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  image?: string;
+  date: string;
+  photoUrl: string;
+  mealItem: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
+    quantity: number;
+  }[];
 };
 
 const Dashboard = () => {
@@ -29,13 +36,26 @@ const Dashboard = () => {
   const isToday = format(new Date(), "yyyy-MM-dd") === dateKey;
   const [userName, setUserName] = useState("Usuário");
   const [meals, setMeals] = useState<Meal[]>([]);
+  const navigate = useNavigate();
+  const [targets, setTargets] = useState({
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fats: 0,
+    });
+  const [consumed, setConsumed] = useState({
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fats: 0,
+    });
 
   // Goals default to 0 until loaded from backend
   const goals = [
-    { label: "Calorias", current: 0, target: 0, unit: "kcal", icon: Flame, color: "text-accent" },
-    { label: "Proteínas", current: 0, target: 0, unit: "g", icon: Beef, color: "text-primary" },
-    { label: "Carboidratos", current: 0, target: 0, unit: "g", icon: Wheat, color: "text-accent" },
-    { label: "Gorduras", current: 0, target: 0, unit: "g", icon: Zap, color: "text-primary" },
+    { label: "Calorias", current: Math.round(consumed.calories), target: targets.calories, unit: "kcal", icon: Flame, color: "text-accent" },
+    { label: "Proteínas", current: Math.round(consumed.protein), target: targets.protein, unit: "g", icon: Beef, color: "text-primary" },
+    { label: "Carboidratos", current: Math.round(consumed.carbs), target: targets.carbs, unit: "g", icon: Wheat, color: "text-accent" },
+    { label: "Gorduras", current: Math.round(consumed.fats), target: targets.fats, unit: "g", icon: Zap, color: "text-primary" },
   ];
 
   useEffect(() => {
@@ -54,6 +74,58 @@ const Dashboard = () => {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        const response = await api.get(`/meal/date/${dateKey}`);
+        console.log("Refeições carregadas:", response.data);
+        setMeals(response.data);
+        const totalsResponse = await api.get(`/meal/daily-totals/${dateKey}`);
+        setConsumed(totalsResponse.data);
+      } catch (error) {
+        console.error("Erro ao carregar refeições:", error);
+      }
+    };
+    
+    fetchMeals();
+  }, [dateKey]);
+
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const response = await api.get('/user-goal');
+        const data = response.data;
+        setTargets({
+          calories: data.calories,
+          protein: data.protein,
+          carbs: data.carbs,
+          fats: data.fats,
+        });
+      } catch (error) {
+        console.error("Erro ao carregar metas:", error);
+      }
+    };
+
+    fetchGoals();
+  }, []);
+
+  const handleNavUpload = () => {
+    navigate("/dashboard/upload");
+  }
+
+  const handleDeleteMeal = async (mealId: string) => {
+    try {
+      await api.delete(`/meal/${mealId}`);
+      setMeals((prev) => prev.filter((m) => m.MealId !== mealId));
+      fetchMeals(); // Refresh totals
+    } catch {
+      alert("Erro ao deletar refeição!");
+    }
+  };
+
+  
 
   return (
     <SidebarProvider>
@@ -81,7 +153,7 @@ const Dashboard = () => {
                   <h3 className="font-heading font-semibold text-foreground text-lg">Registrar refeição</h3>
                   <p className="text-muted-foreground text-sm">Tire uma foto do seu prato para análise nutricional.</p>
                 </div>
-                <Button size="lg" className="rounded-lg font-heading font-semibold gap-2">
+                <Button size="lg" className="rounded-lg font-heading font-semibold gap-2" onClick={handleNavUpload}>
                   <Camera className="w-5 h-5" />
                   Fotografar Prato
                 </Button>
@@ -91,6 +163,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {goals.map((goal) => {
                 const pct = goal.target > 0 ? Math.round((goal.current / goal.target) * 100) : 0;
+                const pct_bar = goal.target > 0 ? Math.min(Math.round((goal.current / goal.target) * 100), 100) : 0;
                 return (
                   <Card key={goal.label}>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -102,7 +175,7 @@ const Dashboard = () => {
                         {goal.current}
                         <span className="text-sm font-normal text-muted-foreground ml-1">/ {goal.target} {goal.unit}</span>
                       </div>
-                      <Progress value={pct} className="mt-3 h-2" />
+                      <Progress value={pct_bar} className="mt-3 h-2" />
                       <p className="text-xs text-muted-foreground mt-1">{pct}% da meta</p>
                     </CardContent>
                   </Card>
@@ -115,7 +188,7 @@ const Dashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="font-heading">
-                    {isToday ? "Refeições de Hoje" : "Refeições"}
+                    {isToday ? "Refeições de Hoje" : "Refeições de " + format(selectedDate, "dd 'de' MMMM", { locale: ptBR })} 
                   </CardTitle>
                   <div className="flex items-center gap-1">
                     <Button
@@ -167,20 +240,34 @@ const Dashboard = () => {
                   </p>
                 ) : (
                   meals.map((meal) => (
+                    
                     <div key={meal.name} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
                       <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <Camera className="h-4 w-4 text-muted-foreground" />
+                        <div className="h-11 w-11 rounded-full overflow-hidden bg-muted shrink-0">
+                          {meal.photoUrl ? (
+                            <img 
+                              src={`http://localhost:3000/${meal.photoUrl.replace('./', '')}`} 
+                              alt={meal.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Camera className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="font-medium text-foreground">{meal.name}</p>
-                          <span className="text-sm font-heading font-semibold text-foreground">{meal.calories} kcal</span>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteMeal(meal.MealId)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <span className="text-sm font-heading font-semibold text-foreground">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.calories, 0))} kcal</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{meal.time}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(meal.date), "HH:mm")}</p>
                         <div className="flex gap-3 mt-1">
-                          <span className="text-xs text-primary font-medium">{meal.protein}g prot</span>
-                          <span className="text-xs text-accent font-medium">{meal.carbs}g carb</span>
-                          <span className="text-xs text-foreground font-medium">{meal.fat}g gord</span>
+                          <span className="text-xs text-primary font-medium">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.protein, 0))}g prot</span>
+                          <span className="text-xs text-accent font-medium">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.carbs, 0))}g carb</span>
+                          <span className="text-xs text-foreground font-medium">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.fats, 0))}g gord</span>
                         </div>
                       </div>
                     </div>

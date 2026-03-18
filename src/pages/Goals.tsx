@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flame, Beef, Wheat, Zap, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import api from "@/lib/api";
+import { tr } from "date-fns/locale";
 
-type GoalKey = "calories" | "protein" | "carbs" | "fat";
+type GoalKey = "calories" | "protein" | "carbs" | "fats";
 
 const goalConfig: { key: GoalKey; label: string; unit: string; icon: typeof Flame; color: string }[] = [
   { key: "calories", label: "Calorias", unit: "kcal", icon: Flame, color: "text-accent" },
   { key: "protein", label: "Proteínas", unit: "g", icon: Beef, color: "text-primary" },
   { key: "carbs", label: "Carboidratos", unit: "g", icon: Wheat, color: "text-accent" },
-  { key: "fat", label: "Gorduras", unit: "g", icon: Zap, color: "text-primary" },
+  { key: "fats", label: "Gorduras", unit: "g", icon: Zap, color: "text-primary" },
 ];
 
 type WeekDay = "none";
@@ -24,7 +26,7 @@ const initialGoals: Record<GoalKey, number> = {
   calories: 0,
   protein: 0,
   carbs: 0,
-  fat: 0,
+  fats: 0,
 };
 
 // No data until backend is connected
@@ -32,7 +34,7 @@ const weeklyData: Record<GoalKey, WeekDay[]> = {
   calories: ["none", "none", "none", "none", "none", "none", "none"],
   protein: ["none", "none", "none", "none", "none", "none", "none"],
   carbs: ["none", "none", "none", "none", "none", "none", "none"],
-  fat: ["none", "none", "none", "none", "none", "none", "none"],
+  fats: ["none", "none", "none", "none", "none", "none", "none"],
 };
 
 const dotColor: Record<string, string> = {
@@ -61,13 +63,57 @@ const Goals = () => {
     setEditing(null);
   };
 
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const response = await api.get('/user-goal');
+        const data = response.data;
+        setGoals({
+          calories: data.calories,
+          protein: data.protein,
+          carbs: data.carbs,
+          fats: data.fats,  // map fats -> 
+        });
+      } catch (error) {
+        alert("Erro ao carregar metas...");
+      }
+    };
+    fetchGoals();
+  }, []); 
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const saveGoals = async () => {
+      try {
+        await api.patch('/user-goal', {
+          calories: goals.calories,
+          protein: goals.protein,
+          carbs: goals.carbs,
+          fats: goals.fats,
+        });
+      } catch (error) {
+        alert("Erro ao salvar metas...");
+      }
+    };
+
+    if (editing === null) {
+      saveGoals();
+    }
+  }, [editing]);
+
   const cancelEdit = () => setEditing(null);
 
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-hidden animate-fade-in">
-        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none" />
+        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-blob" />
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] rounded-full bg-accent/15 blur-[120px] pointer-events-none animate-blob" />
 
         <AppSidebar />
 

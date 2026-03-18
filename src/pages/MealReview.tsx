@@ -7,22 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import api from "@/lib/api";
 
 type FoodItem = {
-  id: number;
+  MealItemId: number;
   name: string;
-  weight: number;
+  quantity: number;
   calories: number;
   protein: number;
   carbs: number;
-  fat: number;
+  fats: number;
 };
 
 const MealReview = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const mealItems = (location.state?.items as FoodItem[]) || [];
-  const mealImage = (location.state?.image as string) || "";
+  const mealImage = (location.state?.imagePreview as string) || "";
+  const mealId = (location.state?.meal?.MealId as string) || "";
 
   const [items, setItems] = useState<FoodItem[]>(mealItems);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -31,29 +33,44 @@ const MealReview = () => {
 
   const totals = items.reduce(
     (acc, item) => ({
+      
       calories: acc.calories + item.calories,
       protein: acc.protein + item.protein,
       carbs: acc.carbs + item.carbs,
-      fat: acc.fat + item.fat,
+      fats: acc.fats + item.fats,
     }),
-    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
   const startEdit = (item: FoodItem) => {
-    setEditingId(item.id);
-    setEditValues({ weight: item.weight, calories: item.calories, protein: item.protein, carbs: item.carbs, fat: item.fat });
+    setEditingId(item.MealItemId);
+    setEditValues({ quantity: item.quantity, calories: item.calories, protein: item.protein, carbs: item.carbs, fats: item.fats });
   };
 
   const saveEdit = (id: number) => {
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...editValues } : item))
+      prev.map((item) => (item.MealItemId === id ? { ...item, ...editValues } : item))
     );
     setEditingId(null);
   };
 
   const cancelEdit = () => setEditingId(null);
 
-  const removeItem = (id: number) => setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = (id: number) => setItems((prev) => prev.filter((i) => i.MealItemId !== id));
+
+  const handleSave = async () => {
+  try {
+    // Update notes on the meal
+    if (notes) {
+      await api.patch(`/meal/${mealId}`, { notes });
+    }
+
+    navigate("/dashboard");
+  } catch (error) {
+    alert("Erro ao salvar refeição!");
+    console.log(error);
+  }
+};
 
   return (
     <SidebarProvider>
@@ -72,9 +89,9 @@ const MealReview = () => {
 
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left — Photo */}
-            <Card className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="aspect-square bg-secondary flex items-center justify-center">
+            <Card className="overflow-hidden h-full">
+              <CardContent className="p-0 h-full">
+                <div className="h-full bg-secondary flex items-center justify-center">
                   {mealImage ? (
                     <img src={mealImage} alt="Refeição" className="w-full h-full object-cover" />
                   ) : (
@@ -98,10 +115,10 @@ const MealReview = () => {
                   ) : (
                     <div className="space-y-3">
                       {items.map((item) => {
-                        const isEditing = editingId === item.id;
+                        const isEditing = editingId === item.MealItemId;
                         return (
                           <div
-                            key={item.id}
+                            key={item.MealItemId}
                             className="rounded-lg border border-border bg-secondary/50 p-3 space-y-2"
                           >
                             <div className="flex items-center justify-between">
@@ -109,7 +126,7 @@ const MealReview = () => {
                               <div className="flex items-center gap-1">
                                 {isEditing ? (
                                   <>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(item.id)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(item.MealItemId)}>
                                       <Check className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={cancelEdit}>
@@ -121,7 +138,7 @@ const MealReview = () => {
                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEdit(item)}>
                                       <Pencil className="h-3.5 w-3.5" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.MealItemId)}>
                                       <X className="h-3.5 w-3.5" />
                                     </Button>
                                   </>
@@ -131,10 +148,10 @@ const MealReview = () => {
 
                             {isEditing ? (
                               <div className="grid grid-cols-5 gap-2">
-                                {(["weight", "calories", "protein", "carbs", "fat"] as const).map((field) => (
+                                {(["quantity", "calories", "protein", "carbs", "fats"] as const).map((field) => (
                                   <div key={field} className="space-y-1">
                                     <label className="text-[10px] uppercase text-muted-foreground">
-                                      {field === "weight" ? "g" : field === "calories" ? "kcal" : field === "protein" ? "prot" : field === "carbs" ? "carb" : "gord"}
+                                      {field === "quantity" ? "g" : field === "calories" ? "kcal" : field === "protein" ? "prot" : field === "carbs" ? "carb" : "gord"}
                                     </label>
                                     <Input
                                       type="number"
@@ -149,11 +166,11 @@ const MealReview = () => {
                               </div>
                             ) : (
                               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                <span>{item.weight}g</span>
+                                <span>{item.quantity}g</span>
                                 <span className="text-accent">{item.calories} kcal</span>
                                 <span>P {item.protein}g</span>
                                 <span>C {item.carbs}g</span>
-                                <span>G {item.fat}g</span>
+                                <span>G {item.fats}g</span>
                               </div>
                             )}
                           </div>
@@ -175,7 +192,7 @@ const MealReview = () => {
                       { label: "Calorias", value: totals.calories, unit: "kcal", highlight: true },
                       { label: "Proteínas", value: totals.protein, unit: "g" },
                       { label: "Carboidratos", value: totals.carbs, unit: "g" },
-                      { label: "Gorduras", value: totals.fat, unit: "g" },
+                      { label: "Gorduras", value: totals.fats, unit: "g" },
                     ].map((m) => (
                       <div key={m.label} className="rounded-lg bg-secondary p-3">
                         <p className="text-[10px] uppercase text-muted-foreground mb-1">{m.label}</p>
@@ -213,7 +230,7 @@ const MealReview = () => {
                 </Button>
                 <Button
                   className="flex-1 h-12 rounded-xl font-heading font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_hsl(145_72%_45%/0.3)]"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={handleSave}
                 >
                   Salvar Refeição
                 </Button>

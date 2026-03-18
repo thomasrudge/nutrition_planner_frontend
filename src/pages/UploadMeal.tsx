@@ -12,6 +12,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import api from "@/lib/api";
 
 const mealTypes = [
   { value: "breakfast", label: "Café da manhã" },
@@ -29,9 +30,11 @@ const UploadMeal = () => {
   const [image, setImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
+    setFile(file);
     const reader = new FileReader();
     reader.onload = (e) => setImage(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -50,6 +53,26 @@ const UploadMeal = () => {
   }, []);
 
   const onDragLeave = useCallback(() => setIsDragging(false), []);
+
+  const handleAnalyze = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', selectedMeal);
+    formData.append('date', `${format(date, 'yyyy-MM-dd')}T${time}:00.000Z`);
+
+    try {
+      const response = await api.post('/meal/analyze', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      navigate('/dashboard/revisao', { state: { ...response.data, imagePreview: image }  });
+
+    } catch (error) {
+      alert('Erro ao analisar refeição!');
+    }
+  };
+
 
   return (
     <SidebarProvider>
@@ -192,6 +215,7 @@ const UploadMeal = () => {
             <Button
               className="w-full h-12 text-base font-heading font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_hsl(145_72%_45%/0.3)] rounded-xl"
               size="lg"
+              onClick={handleAnalyze}
             >
               Analisar Refeição
             </Button>

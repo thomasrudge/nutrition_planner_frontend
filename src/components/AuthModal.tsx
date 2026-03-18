@@ -35,7 +35,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const token = response.data;
     localStorage.setItem("token", token);
 
-    navigate("/dashboard");
+    if (isSignUp) {
+      navigate("/onboarding");
+    } else {
+      navigate("/dashboard");
+    }
     }
     catch(err: any){
       console.error("Erro na autenticação:", err);
