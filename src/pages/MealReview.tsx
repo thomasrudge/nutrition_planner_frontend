@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import api from "@/lib/api";
+import BackgroundIcons from "@/components/BackgroundIcons";
 
 type FoodItem = {
   MealItemId: number;
