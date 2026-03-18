@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Camera, Flame, Zap, Wheat, Beef, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -75,21 +75,22 @@ const Dashboard = () => {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    const fetchMeals = async () => {
+    const fetchMeals = useCallback(async () => {
       try {
         const response = await api.get(`/meal/date/${dateKey}`);
         console.log("Refeições carregadas:", response.data);
         setMeals(response.data);
+
         const totalsResponse = await api.get(`/meal/daily-totals/${dateKey}`);
         setConsumed(totalsResponse.data);
       } catch (error) {
         console.error("Erro ao carregar refeições:", error);
       }
-    };
-    
-    fetchMeals();
-  }, [dateKey]);
+    }, [dateKey]);
+
+    useEffect(() => {
+      fetchMeals();
+    }, [fetchMeals]);
 
 
   useEffect(() => {
@@ -118,8 +119,7 @@ const Dashboard = () => {
   const handleDeleteMeal = async (mealId: string) => {
     try {
       await api.delete(`/meal/${mealId}`);
-      setMeals((prev) => prev.filter((m) => m.MealId !== mealId));
-      fetchMeals(); // Refresh totals
+      await fetchMeals(); // Refresh totals
     } catch {
       alert("Erro ao deletar refeição!");
     }
