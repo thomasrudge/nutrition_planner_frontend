@@ -258,10 +258,12 @@ const Dashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="font-medium text-foreground">{meal.name}</p>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteMeal(meal.MealId)}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                          <span className="text-sm font-heading font-semibold text-foreground">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.calories, 0))} kcal</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-heading font-semibold text-foreground">{Math.round(meal.mealItem.reduce((sum, item) => sum + item.calories, 0))} kcal</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteMeal(meal.MealId)}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(meal.date), "HH:mm")}</p>
                         <div className="flex gap-3 mt-1">
