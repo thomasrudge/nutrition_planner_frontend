@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Search, ChevronDown, Flame, Beef, Wheat, Zap, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -13,17 +13,24 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { cn } from "@/lib/utils";
 import BackgroundIcons from "@/components/BackgroundIcons";
+import api from "@/lib/api";
 
 type MealEntry = {
-  id: number;
-  type: "Café da manhã" | "Almoço" | "Jantar" | "Lanche";
-  time: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  image?: string;
+  MealId: string;
+  name: string;
+  date: string;
+  photoUrl: string;
+  notes: string;
+  mealItem: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
+    quantity: number;
+  }[];
 };
+
+
 
 type DayGroup = {
   date: Date;
@@ -38,6 +45,7 @@ const mealTypeColors: Record<string, string> = {
   "Almoço": "bg-primary/20 text-primary",
   "Jantar": "bg-accent/20 text-accent",
   "Lanche": "bg-primary/20 text-primary",
+  "Outro": "bg-accent/20 text-accent",
 };
 
 
@@ -47,12 +55,16 @@ const MealHistory = () => {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [openDays, setOpenDays] = useState<Set<number>>(new Set([0, 1]));
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const dateKey = format(selectedDate, "yyyy-MM-dd");
+  const isDate = format(new Date(), "yyyy-MM-dd") === dateKey;
+  const [meals, setMeals] = useState<DayGroup[]>([]);
 
   const filteredData = useMemo(() => {
-    return mealData
+    return meals
       .map((day) => {
         const meals = day.meals.filter((m) => {
-          if (typeFilter !== "all" && m.type !== typeFilter) return false;
+          if (typeFilter !== "all" && m.name !== typeFilter) return false;
           return true;
         });
         return { ...day, meals };
@@ -63,7 +75,7 @@ const MealHistory = () => {
         if (dateTo && day.date > dateTo) return false;
         return true;
       });
-  }, [typeFilter, dateFrom, dateTo]);
+  }, [typeFilter, dateFrom, dateTo, meals]);
 
   const toggleDay = (idx: number) => {
     setOpenDays((prev) => {
@@ -72,6 +84,33 @@ const MealHistory = () => {
       return next;
     });
   };
+
+    const fetchMeals = useCallback(async () => {
+      try {
+        const response = await api.get('/meal/user');
+
+        const grouped = response.data.reduce((acc: DayGroup[], meal: any) => {
+        const dateStr = meal.date.split('T')[0];
+        const existing = acc.find(g => g.date.toISOString().split('T')[0] === dateStr);
+  
+
+          if (existing) {
+            existing.meals.push(meal);
+          } else {
+            acc.push({ date: new Date(dateStr), meals: [meal] });
+          }
+          return acc;
+        }, []);
+        setMeals(grouped);
+      } catch (error) {
+        console.error("Erro ao carregar refeições:", error);
+      }
+    }, []);
+
+    useEffect(() => {
+      fetchMeals();
+    }, [fetchMeals]);
+
 
   return (
     <SidebarProvider>
@@ -102,6 +141,7 @@ const MealHistory = () => {
                   <SelectItem value="Almoço">Almoço</SelectItem>
                   <SelectItem value="Jantar">Jantar</SelectItem>
                   <SelectItem value="Lanche">Lanche</SelectItem>
+                  <SelectItem value="Outro">Outro</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -161,7 +201,7 @@ const MealHistory = () => {
             )}
 
             {filteredData.map((day, idx) => {
-              const totalCal = day.meals.reduce((s, m) => s + m.calories, 0);
+              const totalCal = day.meals.reduce((s, m) => s + Math.round(m.mealItem.reduce((sum, item) => sum + item.calories, 0)), 0);
               const isOpen = openDays.has(idx);
 
               return (
@@ -187,35 +227,44 @@ const MealHistory = () => {
 
                     <CollapsibleContent>
                       <div className="border-t border-border divide-y divide-border">
-                        {day.meals.map((meal) => (
+                        {day.meals.map((meal) => {
+                              const mealCalories = Math.round(meal.mealItem.reduce((sum: number, item: any) => sum + item.calories, 0));
+                              const mealProtein = Math.round(meal.mealItem.reduce((sum: number, item: any) => sum + item.protein, 0));
+                              const mealCarbs = Math.round(meal.mealItem.reduce((sum: number, item: any) => sum + item.carbs, 0));
+                              const mealFat = Math.round(meal.mealItem.reduce((sum: number, item: any) => sum + item.fats, 0));
+                          return (
                           <button
-                            key={meal.id}
-                            onClick={() => navigate("/dashboard/revisao", { state: { readOnly: true, mealId: meal.id } })}
+                            key={meal.MealId}
+                            onClick={() => navigate("/dashboard/revisao", { state: { readOnly: true, mealId: meal.MealId } })}
                             className="w-full flex items-center gap-4 p-4 hover:bg-secondary/30 transition-colors text-left"
                           >
                             <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                              {meal.image ? (
-                                <img src={meal.image} alt="" className="w-full h-full object-cover rounded-lg" />
-                              ) : (
-                                <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                              )}
+
+                              {meal.photoUrl ? (
+                                  <img src={`http://localhost:3000/${meal.photoUrl.replace('./', '')}`} alt="" className="w-full h-full object-cover rounded-lg" />
+                                ) : (
+                                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                                )}
+
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", mealTypeColors[meal.type])}>
-                                  {meal.type}
+                                <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", mealTypeColors[meal.name])}>
+                                  {meal.name}
                                 </span>
-                                <span className="text-xs text-muted-foreground">{meal.time}</span>
+                                <span className="text-xs text-muted-foreground">{meal.date.split('T')[1].substring(0,5)}</span>
                               </div>
+                              
                               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1"><Flame className="h-3 w-3 text-accent" />{meal.calories} kcal</span>
-                                <span className="flex items-center gap-1"><Beef className="h-3 w-3 text-primary" />{meal.protein}g</span>
-                                <span className="flex items-center gap-1"><Wheat className="h-3 w-3 text-accent" />{meal.carbs}g</span>
-                                <span className="flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />{meal.fat}g</span>
+                                <span className="flex items-center gap-1"><Flame className="h-3 w-3 text-accent" />{mealCalories} kcal</span>
+                                <span className="flex items-center gap-1"><Beef className="h-3 w-3 text-primary" />{mealProtein}g</span>
+                                <span className="flex items-center gap-1"><Wheat className="h-3 w-3 text-accent" />{mealCarbs}g</span>
+                                <span className="flex items-center gap-1"><Zap className="h-3 w-3 text-primary" />{mealFat}g</span>
                               </div>
                             </div>
                           </button>
-                        ))}
+                          );
+                          })}
                       </div>
                     </CollapsibleContent>
                   </Card>

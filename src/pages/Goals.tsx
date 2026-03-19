@@ -7,7 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import api from "@/lib/api";
 import BackgroundIcons from "@/components/BackgroundIcons";
-import { tr } from "date-fns/locale";
+import { format } from "date-fns";
 
 type GoalKey = "calories" | "protein" | "carbs" | "fats";
 
@@ -30,13 +30,8 @@ const initialGoals: Record<GoalKey, number> = {
   fats: 0,
 };
 
-// No data until backend is connected
-const weeklyData: Record<GoalKey, WeekDay[]> = {
-  calories: ["none", "none", "none", "none", "none", "none", "none"],
-  protein: ["none", "none", "none", "none", "none", "none", "none"],
-  carbs: ["none", "none", "none", "none", "none", "none", "none"],
-  fats: ["none", "none", "none", "none", "none", "none", "none"],
-};
+
+
 
 const dotColor: Record<string, string> = {
   hit: "bg-primary",
@@ -49,6 +44,12 @@ const Goals = () => {
   const [goals, setGoals] = useState(initialGoals);
   const [editing, setEditing] = useState<GoalKey | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [weeklyData, setWeeklyData] = useState<Record<GoalKey, string[]>>({
+    calories: ["none", "none", "none", "none", "none", "none", "none"],
+    protein: ["none", "none", "none", "none", "none", "none", "none"],
+    carbs: ["none", "none", "none", "none", "none", "none", "none"],
+    fats: ["none", "none", "none", "none", "none", "none", "none"],
+  });
 
   const startEdit = (key: GoalKey) => {
     setEditing(key);
@@ -76,6 +77,13 @@ const Goals = () => {
           carbs: data.carbs,
           fats: data.fats,  // map fats -> 
         });
+
+        await fetchWeeklyData({ 
+        calories: data.calories, 
+        protein: data.protein, 
+        carbs: data.carbs, 
+        fats: data.fats 
+      });
       } catch (error) {
         alert("Erro ao carregar metas...");
       }
@@ -108,6 +116,43 @@ const Goals = () => {
       saveGoals();
     }
   }, [editing]);
+
+  const getWeekDates = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      return format(date, 'yyyy-MM-dd');
+    });
+  };
+
+  const fetchWeeklyData = async (currentGoals: Record<GoalKey, number>) => {
+    const weekDates = getWeekDates();
+    
+    const results = await Promise.all(
+      weekDates.map(async (date) => {
+        try {
+          const response = await api.get(`/meal/daily-totals/${date}`);
+          return response.data;
+        } catch {
+          return { calories: 0, protein: 0, carbs: 0, fats: 0 };
+        }
+      })
+    );
+
+    const newWeeklyData: Record<GoalKey, string[]> = {
+      calories: results.map(d => d.calories > 0 ? (d.calories >= currentGoals.calories ? "hit" : "missed") : "none"),
+      protein: results.map(d => d.protein > 0 ? (d.protein >= currentGoals.protein ? "hit" : "missed") : "none"),
+      carbs: results.map(d => d.carbs > 0 ? (d.carbs >= currentGoals.carbs ? "hit" : "missed") : "none"),
+      fats: results.map(d => d.fats > 0 ? (d.fats >= currentGoals.fats ? "hit" : "missed") : "none"),
+    };
+
+    setWeeklyData(newWeeklyData);
+  };
 
   const cancelEdit = () => setEditing(null);
 

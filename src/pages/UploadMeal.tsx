@@ -16,11 +16,11 @@ import api from "@/lib/api";
 import BackgroundIcons from "@/components/BackgroundIcons";
 
 const mealTypes = [
-  { value: "breakfast", label: "Café da manhã" },
-  { value: "lunch", label: "Almoço" },
-  { value: "dinner", label: "Jantar" },
-  { value: "snack", label: "Lanche" },
-  { value: "other", label: "Outro" },
+  { value: "Café da manhã", label: "Café da manhã" },
+  { value: "Almoço", label: "Almoço" },
+  { value: "Jantar", label: "Jantar" },
+  { value: "Lanche", label: "Lanche" },
+  { value: "Outro", label: "Outro" },
 ];
 
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Save, Trash2, AlertTriangle } from "lucide-react";
+import { Save, Trash2, AlertTriangle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,8 @@ const Settings = () => {
         setWeight(String(data.weight || ""));
         setGender(data.gender || "");
         setActivityLevel(data.activityLevel || "");
+
+
       } catch {
         // silently fail — fields stay empty
       }
@@ -50,9 +52,14 @@ const Settings = () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          setName(payload.name || payload.username || "");
-          setEmail(payload.email || payload.sub || "");
+        const token = localStorage.getItem("token");
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userId = payload.sub;
+        const UserResponse = await api.get(`/users/${userId}`);
+        console.log("User data:", UserResponse.data);
+        console.log('name:', UserResponse.data.name, 'email:', UserResponse.data.email);
+        setName(String(UserResponse.data.name))
+        setEmail(String(UserResponse.data.email))
         }
       } catch {
         // token parse failed
@@ -72,6 +79,15 @@ const Settings = () => {
         gender,
         activityLevel,
       });
+
+      const newGoals = await api.patch("/user-goal", {
+        height: Number(height),
+        weight: Number(weight),
+        gender,
+        activityLevel,
+      });
+
+      console.log("Updated goals:", newGoals.data);
       toast.success("Dados atualizados com sucesso!");
     } catch {
       toast.error("Erro ao salvar dados.");
@@ -83,7 +99,11 @@ const Settings = () => {
     if (confirmDeleteText !== "DELETAR") return;
     setDeleting(true);
     try {
-      await api.delete("/user");
+      const token = localStorage.getItem("token");
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const userId = payload.sub;
+
+      await api.delete(`/users/${userId}`);
       localStorage.removeItem("token");
       toast.success("Conta deletada.");
       navigate("/");
