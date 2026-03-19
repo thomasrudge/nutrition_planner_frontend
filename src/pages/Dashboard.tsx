@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Camera, Flame, Zap, Wheat, Beef, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
+import { Camera, Flame, Zap, Wheat, Beef, ChevronLeft, ChevronRight, CalendarIcon, Trash2 } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
