@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Camera, Upload, ArrowLeft } from "lucide-react";
+import { Camera, Upload, ArrowLeft, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,7 @@ const UploadMeal = () => {
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
   const [image, setImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -57,8 +58,9 @@ const UploadMeal = () => {
   const onDragLeave = useCallback(() => setIsDragging(false), []);
 
   const handleAnalyze = async () => {
-    if (!file) return;
+    if (!file || isLoading) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('name', selectedMeal);
@@ -74,9 +76,10 @@ const UploadMeal = () => {
           imagePreview: `data:image/jpeg;base64,${response.data.annotatedImage}` 
         }  
       });
-
     } catch (error) {
       alert('Erro ao analisar refeição!');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -224,11 +227,41 @@ const UploadMeal = () => {
               className="w-full h-12 text-base font-heading font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_hsl(145_72%_45%/0.3)] rounded-xl"
               size="lg"
               onClick={handleAnalyze}
+              disabled={isLoading}
             >
-              Analisar Refeição
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Analisando...
+                </span>
+              ) : (
+                "Analisar Refeição"
+              )}
             </Button>
           </div>
         </main>
+
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-6 text-center p-8">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                <div className="relative w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center border border-primary/30">
+                  <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-heading font-bold text-foreground">
+                  Analisando sua refeição...
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  Estamos processando a imagem e calculando os macros. Isso pode levar alguns segundos.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </SidebarProvider>
   );
