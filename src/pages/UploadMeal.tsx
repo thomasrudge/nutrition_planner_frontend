@@ -31,6 +31,7 @@ const UploadMeal = () => {
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
   const [image, setImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
