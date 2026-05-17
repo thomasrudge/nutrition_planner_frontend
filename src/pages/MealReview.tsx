@@ -9,6 +9,15 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import api from "@/lib/api";
 import BackgroundIcons from "@/components/BackgroundIcons";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const CLASSES = [
+  'arroz', 'feijão', 'frango', 'carne bovina', 'peixe',
+  'ovo', 'batata frita', 'batata cozida', 'purê',
+  'farofa', 'mandioca', 'macarrão', 'pão', 'salada',
+  'tomate', 'cenoura', 'brócolis', 'pizza'
+];
+
 
 type FoodItem = {
   MealItemId: number;
@@ -54,6 +63,12 @@ const MealReview = () => {
       prev.map((item) => (item.MealItemId === id ? { ...item, ...editValues } : item))
     );
     setEditingId(null);
+    
+    // Recalculate macros with new quantity
+    const item = items.find(i => i.MealItemId === id);
+    if (item && editValues.quantity) {
+      handleReclassify(id, item.name, editValues.quantity);
+    }
   };
 
   const cancelEdit = () => setEditingId(null);
@@ -73,6 +88,19 @@ const MealReview = () => {
     console.log(error);
   }
 };
+
+  const handleReclassify = async (itemId: number, className: string, quantity: number) => {
+    try {
+      const response = await api.post('/meal/reclassify', { className, quantity });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.MealItemId === itemId ? { ...item, ...response.data } : item
+        )
+      );
+    } catch {
+      alert("Erro ao reclassificar alimento!");
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -125,7 +153,16 @@ const MealReview = () => {
                             className="rounded-lg border border-border bg-secondary/50 p-3 space-y-2"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-medium text-foreground">{item.name}</span>
+                              <Select value={item.name} onValueChange={(val) => handleReclassify(item.MealItemId, val, item.quantity)}>
+                                <SelectTrigger className="h-8 w-40 text-sm font-medium">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {CLASSES.map((c) => (
+                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <div className="flex items-center gap-1">
                                 {isEditing ? (
                                   <>

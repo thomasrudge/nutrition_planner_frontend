@@ -68,7 +68,12 @@ const UploadMeal = () => {
       const response = await api.post('/meal/analyze', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      navigate('/dashboard/revisao', { state: { ...response.data, imagePreview: image }  });
+      navigate('/dashboard/revisao', { 
+        state: { 
+          ...response.data,
+          imagePreview: `data:image/jpeg;base64,${response.data.annotatedImage}` 
+        }  
+      });
 
     } catch (error) {
       alert('Erro ao analisar refeição!');
