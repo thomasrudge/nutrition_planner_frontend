@@ -58,8 +58,9 @@ const UploadMeal = () => {
   const onDragLeave = useCallback(() => setIsDragging(false), []);
 
   const handleAnalyze = async () => {
-    if (!file) return;
+    if (!file || isLoading) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('name', selectedMeal);
@@ -75,9 +76,10 @@ const UploadMeal = () => {
           imagePreview: `data:image/jpeg;base64,${response.data.annotatedImage}` 
         }  
       });
-
     } catch (error) {
       alert('Erro ao analisar refeição!');
+    } finally {
+      setIsLoading(false);
     }
   };
 
