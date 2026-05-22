@@ -278,7 +278,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             {/* Progress Chart */}
-            <ProgressChart />
+            
           </main>
         </div>
       </div>
