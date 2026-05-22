@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Camera, Upload, ArrowLeft, Loader2 } from "lucide-react";
+import { Camera, Upload, ArrowLeft, Loader2, Maximize2, Utensils, ArrowDownToLine, Lightbulb, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +34,7 @@ const UploadMeal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [showTips, setShowTips] = useState(true);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -101,6 +102,73 @@ const UploadMeal = () => {
           </div>
 
           <div className="max-w-lg mx-auto space-y-6">
+            {/* Photo Tips */}
+            {showTips && (
+              <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card animate-fade-in">
+                <button
+                  onClick={() => setShowTips(false)}
+                  className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors z-10"
+                  aria-label="Dispensar dicas"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Lightbulb className="h-4 w-4 text-primary" />
+                    </div>
+                    <h3 className="font-heading font-semibold text-foreground">
+                      Como tirar a foto ideal
+                    </h3>
+                  </div>
+
+                  {/* Illustration */}
+                  <div className="flex justify-center py-2">
+                    <svg width="120" height="120" viewBox="0 0 120 120" className="animate-fade-in">
+                      <circle cx="60" cy="60" r="48" fill="hsl(var(--secondary))" stroke="hsl(var(--primary))" strokeWidth="2" />
+                      <circle cx="60" cy="60" r="40" fill="none" stroke="hsl(var(--border))" strokeWidth="1" strokeDasharray="3 3" />
+                      <circle cx="45" cy="48" r="9" fill="hsl(var(--primary))" opacity="0.85">
+                        <animate attributeName="r" values="9;10;9" dur="2.5s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx="75" cy="50" r="8" fill="hsl(var(--accent))" opacity="0.85">
+                        <animate attributeName="r" values="8;9;8" dur="2.8s" repeatCount="indefinite" />
+                      </circle>
+                      <rect x="50" y="68" width="22" height="14" rx="3" fill="hsl(var(--primary))" opacity="0.6">
+                        <animate attributeName="opacity" values="0.6;0.85;0.6" dur="3s" repeatCount="indefinite" />
+                      </rect>
+                    </svg>
+                  </div>
+
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                        <Maximize2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-sm text-muted-foreground pt-1">
+                        Enquadre o prato preenchendo a maior parte da foto
+                      </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                        <Utensils className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-sm text-muted-foreground pt-1">
+                        Separe os alimentos no prato, evitando sobreposição
+                      </p>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                        <ArrowDownToLine className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-sm text-muted-foreground pt-1">
+                        Tire a foto de cima (vista superior), com boa iluminação
+                      </p>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Meal Type */}
             <Card>
               <CardContent className="p-5 space-y-3">
