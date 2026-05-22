@@ -101,8 +101,7 @@ const UploadMeal = () => {
             </h1>
           </div>
 
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="max-w-xl mx-auto space-y-6">
             {/* Meal Type */}
             <Card>
               <CardContent className="p-5 space-y-3">
@@ -224,6 +223,43 @@ const UploadMeal = () => {
               </CardContent>
             </Card>
 
+            {/* Photo Tips — horizontal and subtle, between upload and submit */}
+            {showTips && (
+              <div className="relative rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 animate-fade-in">
+                <button
+                  onClick={() => setShowTips(false)}
+                  className="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Dispensar dicas"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <Lightbulb className="h-3 w-3 text-primary shrink-0" />
+                    <span className="font-medium text-foreground hidden sm:inline">Dica:</span>
+                  </div>
+                  <div className="flex items-center gap-4 flex-1 justify-center">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Maximize2 className="h-3 w-3 text-primary shrink-0" />
+                      <span>Enquadre o prato</span>
+                    </div>
+                    <span className="text-muted-foreground/30">·</span>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Utensils className="h-3 w-3 text-primary shrink-0" />
+                      <span className="hidden sm:inline">Separe os alimentos</span>
+                      <span className="sm:hidden">Separe</span>
+                    </div>
+                    <span className="text-muted-foreground/30">·</span>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <ArrowDownToLine className="h-3 w-3 text-primary shrink-0" />
+                      <span className="hidden sm:inline">Foto de cima com boa luz</span>
+                      <span className="sm:hidden">Foto de cima</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Submit */}
             <Button
               className="w-full h-12 text-base font-heading font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_hsl(145_72%_45%/0.3)] rounded-xl"
@@ -240,50 +276,6 @@ const UploadMeal = () => {
                 "Analisar Refeição"
               )}
             </Button>
-            </div>
-
-            {/* Photo Tips — side column */}
-            {showTips && (
-              <Card className="relative border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card animate-fade-in lg:sticky lg:top-4">
-                <button
-                  onClick={() => setShowTips(false)}
-                  className="absolute top-2.5 right-2.5 text-muted-foreground hover:text-foreground transition-colors z-10"
-                  aria-label="Dispensar dicas"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Lightbulb className="h-3 w-3 text-primary" />
-                    </div>
-                    <h3 className="text-sm font-heading font-semibold text-foreground">
-                      Como tirar a foto ideal
-                    </h3>
-                  </div>
-                  <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2.5">
-                      <Maximize2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Enquadre o prato preenchendo a maior parte da foto
-                      </p>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Utensils className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Separe os alimentos, evitando sobreposição
-                      </p>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <ArrowDownToLine className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Tire de cima (vista superior), com boa iluminação
-                      </p>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </main>
 
