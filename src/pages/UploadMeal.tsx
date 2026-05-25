@@ -34,7 +34,6 @@ const UploadMeal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [showTips, setShowTips] = useState(true);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -166,8 +165,30 @@ const UploadMeal = () => {
 
             {/* Photo Upload */}
             <Card>
-              <CardContent className="p-5 space-y-3">
+              <CardContent className="p-5 space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">Foto do prato</label>
+
+                {/* Tips */}
+                <div className="rounded-lg border border-primary/10 bg-primary/[0.03] p-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col items-center text-center gap-1.5">
+                      <Maximize2 className="h-4 w-4 text-primary shrink-0" />
+                      <p className="text-xs font-semibold text-foreground leading-tight">Enquadre o prato</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Preencha a maior parte da foto</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center gap-1.5">
+                      <Utensils className="h-4 w-4 text-primary shrink-0" />
+                      <p className="text-xs font-semibold text-foreground leading-tight">Separe os alimentos</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Evite empilhar ou sobrepor</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center gap-1.5">
+                      <ArrowDownToLine className="h-4 w-4 text-primary shrink-0" />
+                      <p className="text-xs font-semibold text-foreground leading-tight">Fotografe de cima</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Vista superior, boa luz</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div
                   onDrop={onDrop}
                   onDragOver={onDragOver}
@@ -223,42 +244,6 @@ const UploadMeal = () => {
               </CardContent>
             </Card>
 
-            {/* Photo Tips — horizontal and subtle, between upload and submit */}
-            {showTips && (
-              <div className="relative rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 animate-fade-in">
-                <button
-                  onClick={() => setShowTips(false)}
-                  className="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Dispensar dicas"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <Lightbulb className="h-3 w-3 text-primary shrink-0" />
-                    <span className="font-medium text-foreground hidden sm:inline">Dica:</span>
-                  </div>
-                  <div className="flex items-center gap-4 flex-1 justify-center">
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Maximize2 className="h-3 w-3 text-primary shrink-0" />
-                      <span>Enquadre o prato</span>
-                    </div>
-                    <span className="text-muted-foreground/30">·</span>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Utensils className="h-3 w-3 text-primary shrink-0" />
-                      <span className="hidden sm:inline">Separe os alimentos</span>
-                      <span className="sm:hidden">Separe</span>
-                    </div>
-                    <span className="text-muted-foreground/30">·</span>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <ArrowDownToLine className="h-3 w-3 text-primary shrink-0" />
-                      <span className="hidden sm:inline">Foto de cima com boa luz</span>
-                      <span className="sm:hidden">Foto de cima</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Submit */}
             <Button
