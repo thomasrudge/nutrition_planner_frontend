@@ -246,7 +246,7 @@ const Dashboard = () => {
                         <div className="h-11 w-11 rounded-full overflow-hidden bg-muted shrink-0">
                           {meal.photoUrl ? (
                             <img 
-                              src={`http://localhost:3000/${meal.photoUrl.replace('./', '')}`} 
+                              src={meal.photoUrl} 
                               alt={meal.name}
                               className="w-full h-full object-cover"
                             />
