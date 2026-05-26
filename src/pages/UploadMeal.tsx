@@ -26,7 +26,7 @@ const mealTypes = [
 
 const UploadMeal = () => {
   const navigate = useNavigate();
-  const [selectedMeal, setSelectedMeal] = useState("lunch");
+  const [selectedMeal, setSelectedMeal] = useState("Almoço");
   const [date, setDate] = useState<Date>(new Date());
   const [time, setTime] = useState(format(new Date(), "HH:mm"));
   const [image, setImage] = useState<string | null>(null);
@@ -72,7 +72,10 @@ const UploadMeal = () => {
       });
       navigate('/dashboard/revisao', { 
         state: { 
-          ...response.data,
+          items: response.data.items,
+          photoUrl: response.data.photoUrl,
+          name: selectedMeal,
+          date: `${format(date, 'yyyy-MM-dd')}T${time}:00.000Z`,
           imagePreview: `data:image/jpeg;base64,${response.data.annotatedImage}` 
         }  
       });
