@@ -18,9 +18,7 @@ const CLASSES = [
   'tomate', 'cenoura', 'brócolis', 'pizza'
 ];
 
-
 type FoodItem = {
-  MealItemId: number;
   name: string;
   quantity: number;
   calories: number;
@@ -29,11 +27,9 @@ type FoodItem = {
   fats: number;
 };
 
-
 const MealReview = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
 
   const mealItems = (location.state?.items as FoodItem[]) || [];
   const mealImage = (location.state?.imagePreview as string) || "";
@@ -48,7 +44,6 @@ const MealReview = () => {
 
   const totals = items.reduce(
     (acc, item) => ({
-      
       calories: acc.calories + item.calories,
       protein: acc.protein + item.protein,
       carbs: acc.carbs + item.carbs,
@@ -57,27 +52,28 @@ const MealReview = () => {
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
-  const startEdit = (item: FoodItem) => {
-    setEditingId(item.MealItemId);
+  const startEdit = (index: number) => {
+    const item = items[index];
+    setEditingId(index);
     setEditValues({ quantity: item.quantity, calories: item.calories, protein: item.protein, carbs: item.carbs, fats: item.fats });
   };
 
-  const saveEdit = (id: number) => {
+  const saveEdit = (index: number) => {
     setItems((prev) =>
-      prev.map((item) => (item.MealItemId === id ? { ...item, ...editValues } : item))
+      prev.map((item, i) => (i === index ? { ...item, ...editValues } : item))
     );
     setEditingId(null);
-    
-    // Recalculate macros with new quantity
-    const item = items.find(i => i.MealItemId === id);
+
+    const item = items[index];
     if (item && editValues.quantity) {
-      handleReclassify(id, item.name, editValues.quantity);
+      handleReclassify(index, item.name, editValues.quantity);
     }
   };
 
   const cancelEdit = () => setEditingId(null);
 
-  const removeItem = (id: number) => setItems((prev) => prev.filter((i) => i.MealItemId !== id));
+  const removeItem = (index: number) =>
+    setItems((prev) => prev.filter((_, i) => i !== index));
 
   const handleSave = async () => {
     try {
@@ -88,7 +84,6 @@ const MealReview = () => {
         notes: notes,
         items: items,
       });
-
       navigate("/dashboard");
     } catch (error) {
       alert("Erro ao salvar refeição!");
@@ -96,12 +91,12 @@ const MealReview = () => {
     }
   };
 
-  const handleReclassify = async (itemId: number, className: string, quantity: number) => {
+  const handleReclassify = async (index: number, className: string, quantity: number) => {
     try {
       const response = await api.post('/meal/reclassify', { className, quantity });
       setItems((prev) =>
-        prev.map((item) =>
-          item.MealItemId === itemId ? { ...item, ...response.data } : item
+        prev.map((item, i) =>
+          i === index ? { ...item, ...response.data } : item
         )
       );
     } catch {
@@ -152,15 +147,15 @@ const MealReview = () => {
                     </p>
                   ) : (
                     <div className="space-y-3">
-                      {items.map((item) => {
-                        const isEditing = editingId === item.MealItemId;
+                      {items.map((item, index) => {
+                        const isEditing = editingId === index;
                         return (
                           <div
-                            key={item.MealItemId}
+                            key={index}
                             className="rounded-lg border border-border bg-secondary/50 p-3 space-y-2"
                           >
                             <div className="flex items-center justify-between">
-                              <Select value={item.name} onValueChange={(val) => handleReclassify(item.MealItemId, val, item.quantity)}>
+                              <Select value={item.name} onValueChange={(val) => handleReclassify(index, val, item.quantity)}>
                                 <SelectTrigger className="h-8 w-40 text-sm font-medium">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -173,7 +168,7 @@ const MealReview = () => {
                               <div className="flex items-center gap-1">
                                 {isEditing ? (
                                   <>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(item.MealItemId)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => saveEdit(index)}>
                                       <Check className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={cancelEdit}>
@@ -182,10 +177,10 @@ const MealReview = () => {
                                   </>
                                 ) : (
                                   <>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEdit(item)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEdit(index)}>
                                       <Pencil className="h-3.5 w-3.5" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.MealItemId)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeItem(index)}>
                                       <X className="h-3.5 w-3.5" />
                                     </Button>
                                   </>
