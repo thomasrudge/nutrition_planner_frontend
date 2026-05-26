@@ -241,7 +241,7 @@ const MealHistory = () => {
                             <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center shrink-0">
 
                               {meal.photoUrl ? (
-                                  <img src={`http://localhost:3000/${meal.photoUrl.replace('./', '')}`} alt="" className="w-full h-full object-cover rounded-lg" />
+                                  <img src={meal.photoUrl} alt="" className="w-full h-full object-cover rounded-lg" />
                                 ) : (
                                   <ImageIcon className="h-6 w-6 text-muted-foreground" />
                                 )}
