@@ -101,6 +101,7 @@ const MealHistory = () => {
           }
           return acc;
         }, []);
+        grouped.sort((a, b) => b.date.getTime() - a.date.getTime());
         setMeals(grouped);
       } catch (error) {
         console.error("Erro ao carregar refeições:", error);
