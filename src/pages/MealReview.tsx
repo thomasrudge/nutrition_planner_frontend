@@ -33,9 +33,13 @@ type FoodItem = {
 const MealReview = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+
   const mealItems = (location.state?.items as FoodItem[]) || [];
   const mealImage = (location.state?.imagePreview as string) || "";
-  const mealId = (location.state?.meal?.MealId as string) || "";
+  const photoUrl = (location.state?.photoUrl as string) || "";
+  const mealName = (location.state?.name as string) || "";
+  const mealDate = (location.state?.date as string) || "";
 
   const [items, setItems] = useState<FoodItem[]>(mealItems);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -76,18 +80,21 @@ const MealReview = () => {
   const removeItem = (id: number) => setItems((prev) => prev.filter((i) => i.MealItemId !== id));
 
   const handleSave = async () => {
-  try {
-    // Update notes on the meal
-    if (notes) {
-      await api.patch(`/meal/${mealId}`, { notes });
-    }
+    try {
+      await api.post("/meal/save", {
+        name: mealName,
+        date: mealDate,
+        photoUrl: photoUrl,
+        notes: notes,
+        items: items,
+      });
 
-    navigate("/dashboard");
-  } catch (error) {
-    alert("Erro ao salvar refeição!");
-    console.log(error);
-  }
-};
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Erro ao salvar refeição!");
+      console.log(error);
+    }
+  };
 
   const handleReclassify = async (itemId: number, className: string, quantity: number) => {
     try {
